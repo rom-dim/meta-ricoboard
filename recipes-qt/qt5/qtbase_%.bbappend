@@ -7,21 +7,15 @@ QT_QPA_DEFAULT_PLATFORM ??= "eglfs"
 # opengl, we have to disable gl and enable gles2 by hand here.
 PACKAGECONFIG_GL_ti33x = "gles2 eglfs"
 PACKAGECONFIG_GL_ti43x = "gles2 eglfs"
-
 RDEPENDS_qtbase_append = " tslib-conf tslib-calibrate"
 
+PACKAGECONFIG_FONTS = "fontconfig"
 PACKAGECONFIG_MULTIMEDIA_append = " alsa"
 PACKAGECONFIG_DEFAULT_append = " tslib"
 
-PACKAGECONFIG_FONTS = "fontconfig"
-
-#use system libraries wherever possible
-PACKAGECONFIG_append = " pcre"
-
-#input devices
-PACKAGECONFIG_append = " libinput xkbcommon-evdev"
-PACKAGECONFIG_DEFAULT = "dbus udev libs"
-
+#PACKAGECONFIG_append = " pcre"
+PACKAGECONFIG_append = " accessibility"
+        
 # Set default QT_QPA_PLATFORM for all phytec boards
 do_configure_prepend() {
         # adapt qmake.conf to our needs
@@ -31,7 +25,7 @@ do_configure_prepend() {
         cat >> ${S}/mkspecs/linux-oe-g++/qmake.conf <<EOF
 
 QT_QPA_DEFAULT_PLATFORM = ${QT_QPA_DEFAULT_PLATFORM}
-
+ 
 load(qt_config)
 
 EOF
