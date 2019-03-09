@@ -38,7 +38,9 @@ PR = "${MACHINE_KERNEL_PR}"
 KERNEL_GIT_URI = "git://git.ti.com/ti-linux-kernel/ti-linux-kernel.git"
 KERNEL_GIT_PROTOCOL = "git"
 SRC_URI += "${KERNEL_GIT_URI};protocol=${KERNEL_GIT_PROTOCOL};branch=${BRANCH} \
-            file://defconfig "
+            file://defconfig \
+            file://ti-adc1.patch \
+            "
 
 
 SRC_URI_append_ricoboard += " file://am437x-myir-ricoboard-* \

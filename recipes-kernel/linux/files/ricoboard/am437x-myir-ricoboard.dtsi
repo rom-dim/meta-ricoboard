@@ -135,6 +135,7 @@
 		 * };
 		 */
 	};
+   
 };
 
 &am43xx_pinmux {
@@ -544,8 +545,8 @@
 
 	keys_pins_default: keys_pins_default {
 		pinctrl-single,pins = <
-			AM4372_IOPAD(0xa44, PIN_OUTPUT | MUX_MODE7)  /* gpio5_11.gpio5_11 */
-			AM4372_IOPAD(0xa4c, PIN_OUTPUT | MUX_MODE7)  /* gpio5_13.gpio5_13 */
+			AM4372_IOPAD(0xa44, PIN_INPUT_PULLUP | MUX_MODE7)  /* gpio5_11.gpio5_11 */
+			AM4372_IOPAD(0xa4c, PIN_INPUT_PULLUP | MUX_MODE7)  /* gpio5_13.gpio5_13 */
 		>;
 	};
 
@@ -738,6 +739,11 @@
 			regulator-boot-on;
 			regulator-always-on;
 		};
+
+		power-button {
+			compatible = "ti,tps65218-pwrbutton";
+			interrupts = <3 IRQ_TYPE_EDGE_BOTH>;
+		};
 	};
 
 	cat24c256@50 {
@@ -837,20 +843,6 @@
 
 &epwmss0 {
 	status = "okay";
-};
-
-&tscadc {
-	status = "okay";
-	tsc {
-		ti,wires = <4>;
-		ti,x-plate-resistance = <350>;
-		ti,coordiante-readouts = <5>;
-		ti,wire-config = <0x00 0x11 0x22 0x33>;
-	};
-
-	adc {
-		ti,adc-channels = <0 1 2 3>;
-	};
 };
 
 &ecap0 {
@@ -1069,92 +1061,9 @@
 	status = "okay";
 };
 
-&gpmc {
-	/*
-	 * When enabling GPMC, disable eMMC and set
-	 * SelEMMCorNAND to output-low
-	 */
-	status = "disabled";
-	pinctrl-names = "default";
-	pinctrl-0 = <&nand_flash_x8>;
-	ranges = <0 0 0x08000000 0x01000000>;	/* CS0 space. Min partition = 16MB */
-	nand@0,0 {
-		compatible = "ti,omap2-nand";
-		reg = <0 0 4>;		/* device IO registers */
-		interrupt-parent = <&gpmc>;
-		interrupts = <0 IRQ_TYPE_NONE>, /* fifoevent */
-			     <1 IRQ_TYPE_NONE>;	/* termcount */
-		rb-gpios = <&gpmc 0 GPIO_ACTIVE_HIGH>;	/* gpmc_wait0 */
-		ti,nand-ecc-opt = "bch16";
-		ti,elm-id = <&elm>;
-		nand-bus-width = <8>;
-		gpmc,device-width = <1>;
-		gpmc,sync-clk-ps = <0>;
-		gpmc,cs-on-ns = <0>;
-		gpmc,cs-rd-off-ns = <40>;
-		gpmc,cs-wr-off-ns = <40>;
-		gpmc,adv-on-ns = <0>;
-		gpmc,adv-rd-off-ns = <25>;
-		gpmc,adv-wr-off-ns = <25>;
-		gpmc,we-on-ns = <0>;
-		gpmc,we-off-ns = <20>;
-		gpmc,oe-on-ns = <3>;
-		gpmc,oe-off-ns = <30>;
-		gpmc,access-ns = <30>;
-		gpmc,rd-cycle-ns = <40>;
-		gpmc,wr-cycle-ns = <40>;
-		gpmc,bus-turnaround-ns = <0>;
-		gpmc,cycle2cycle-delay-ns = <0>;
-		gpmc,clk-activation-ns = <0>;
-		gpmc,wr-access-ns = <40>;
-		gpmc,wr-data-mux-bus-ns = <0>;
-		/* MTD partition table */
-		/* All SPL-* partitions are sized to minimal length
-		 * which can be independently programmable. For
-		 * NAND flash this is equal to size of erase-block */
-		#address-cells = <1>;
-		#size-cells = <1>;
-		partition@0 {
-			label = "NAND.SPL";
-			reg = <0x00000000 0x00040000>;
-		};
-		partition@1 {
-			label = "NAND.SPL.backup1";
-			reg = <0x00040000 0x00040000>;
-		};
-		partition@2 {
-			label = "NAND.SPL.backup2";
-			reg = <0x00080000 0x00040000>;
-		};
-		partition@3 {
-			label = "NAND.SPL.backup3";
-			reg = <0x000c0000 0x00040000>;
-		};
-		partition@4 {
-			label = "NAND.u-boot-spl-os";
-			reg = <0x00100000 0x00080000>;
-		};
-		partition@5 {
-			label = "NAND.u-boot";
-			reg = <0x00180000 0x00100000>;
-		};
-		partition@6 {
-			label = "NAND.u-boot-env";
-			reg = <0x00280000 0x00040000>;
-		};
-		partition@7 {
-			label = "NAND.u-boot-env.backup1";
-			reg = <0x002c0000 0x00040000>;
-		};
-		partition@8 {
-			label = "NAND.kernel";
-			reg = <0x00300000 0x00700000>;
-		};
-		partition@9 {
-			label = "NAND.file-system";
-			reg = <0x00a00000 0x1f600000>;
-		};
-	};
+&adc1 {
+	status = "okay";
+	ti,adc-channels = <0 1 2 3 4 5 6 7>;
 };
 
 &dcan0 {
@@ -1170,6 +1079,25 @@
 	pinctrl-1 = <&dcan1_sleep>;
 	status = "okay";
 };
+
+&mcasp1 {
+	#sound-dai-cells = <0>;
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&mcasp1_pins>;
+	pinctrl-1 = <&mcasp1_sleep_pins>;
+
+	status = "ok";
+
+	op-mode = <0>; /* MCASP_IIS_MODE */
+	tdm-slots = <2>;
+	/* 4 serializers */
+	serial-dir = <  /* 0: INACTIVE, 1: TX, 2: RX */
+		0 0 1 2
+	>;
+	tx-num-evt = <32>;
+	rx-num-evt = <32>;
+};
+
 
 &vpfe0 {
 	status = "okay";
@@ -1203,24 +1131,6 @@
 			vsync-active = <0>;
 		};
 	};
-};
-
-&mcasp1 {
-	#sound-dai-cells = <0>;
-	pinctrl-names = "default", "sleep";
-	pinctrl-0 = <&mcasp1_pins>;
-	pinctrl-1 = <&mcasp1_sleep_pins>;
-
-	status = "disable";
-
-	op-mode = <0>; /* MCASP_IIS_MODE */
-	tdm-slots = <2>;
-	/* 4 serializers */
-	serial-dir = <  /* 0: INACTIVE, 1: TX, 2: RX */
-		0 0 1 2
-	>;
-	tx-num-evt = <32>;
-	rx-num-evt = <32>;
 };
 
 &rtc {
