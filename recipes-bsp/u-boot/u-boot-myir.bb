@@ -1,33 +1,27 @@
-# UBOOT_LOCALVERSION can be set to add a tag to the end of the
-# U-boot version string.  such as the commit id
-def get_git_revision(p):
-    import subprocess
+# Copyright (C) 2013-2015 Freescale Semiconductor
 
-    try:
-        return subprocess.Popen("git rev-parse HEAD 2>/dev/null ", cwd=p, shell=True, stdout=subprocess.PIPE, universal_newlines=True).communicate()[0].rstrip()
-    except OSError:
-        return None
-
-UBOOT_LOCALVERSION = "-g${@get_git_revision('${S}').__str__()[:10]}"
-
-UBOOT_SUFFIX ?= "img"
-
-require ${COREBASE}/meta/recipes-bsp/u-boot/u-boot.inc
-
-FILESEXTRAPATHS_prepend := "${THISDIR}/u-boot:"
-
-SUMMARY = "u-boot bootloader for TI devices"
+DESCRIPTION = "U-Boot provided by Freescale with focus on  i.MX reference boards."
 
 LICENSE = "GPLv2+"
-LIC_FILES_CHKSUM = "file://Licenses/README;md5=a2c678cfd4a4d97135585cad908541c6"
+LIC_FILES_CHKSUM = "file://Licenses/gpl-2.0.txt;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 
-BRANCH ?= "master"
-SRC_URI = "git://git.ti.com/ti-u-boot/ti-u-boot.git;protocol=git;branch=${BRANCH}"
-
-PV_append = "+git${SRCPV}"
-
-# u-boot needs devtree compiler to parse dts files
+PROVIDES += "u-boot"
 DEPENDS += "dtc-native bc-native"
+
+require recipes-bsp/u-boot/u-boot.inc
+
+S = "${WORKDIR}/git"
+
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+
+SRCREV="3a3585547d6b6a778d4137278908715a7151f1b6"
+
+SRC_URI = "git://github.com/SunnyGeGe/myir-u-boot.git;protocol=http \
+	   "
+
+
+COMPATIBLE_MACHINE = "(ricoboard)"
+
 
 PROVIDES += "u-boot"
 PKG_${PN} = "u-boot"
