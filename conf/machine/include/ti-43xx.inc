@@ -49,6 +49,3 @@ PREFERRED_PROVIDER_virtual/libgles2 ?= "ti-sgx-ddk-um"
 PREFERRED_PROVIDER_virtual/egl ?= "ti-sgx-ddk-um"
 
 QT_QPA_DEFAULT_PLATFORM ?= "${@bb.utils.contains('MACHINE_FEATURES', 'sgx', 'eglfs', 'linuxfb', d)}"
-
-# default images to build
-IMAGE_FSTYPES += " ext4 tar.xz"
